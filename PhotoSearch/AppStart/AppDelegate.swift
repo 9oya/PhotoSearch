@@ -18,7 +18,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // Setup rootVC at SceneDelegate...
         } else {
             window = UIWindow(frame: UIScreen.main.bounds)
-            window?.rootViewController = UIViewController()
+            let homeNC = UINavigationController(rootViewController: HomeViewController())
+            window?.rootViewController = homeNC
             window?.makeKeyAndVisible()
         }
         

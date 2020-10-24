@@ -9,5 +9,14 @@
 import Foundation
 
 protocol HomeInteractorInput {
-
+    
+    func loadPhotos(keyword: String?, fetchStart: Int, fetchSize: Int)
+    
+    func numberOfHeaderSections() -> Int
+    
+    func numberOfPhotos() -> Int
+    
+    func photoAt(indexPath: IndexPath) -> PhotoModel
+    
+    func configurePhotoCollectionCell(cell: PhotoCollectionCell)
 }

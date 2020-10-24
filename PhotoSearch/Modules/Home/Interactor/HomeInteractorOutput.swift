@@ -9,5 +9,7 @@
 import Foundation
 
 protocol HomeInteractorOutput: class {
+    
+    func reloadCollectionView()
 
 }

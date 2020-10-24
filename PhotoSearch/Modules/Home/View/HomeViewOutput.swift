@@ -6,6 +6,8 @@
 //  Copyright © 2020 9oya.com. All rights reserved.
 //
 
+import UIKit
+
 protocol HomeViewOutput {
 
     /**
@@ -14,4 +16,14 @@ protocol HomeViewOutput {
     */
 
     func viewIsReady()
+    
+    func loadPhotos(keyword: String?, fetchStart: Int, fetchSize: Int)
+    
+    func numberOfHeaderSections() -> Int
+    
+    func numberOfPhotos() -> Int
+    
+    func photoAt(indexPath: IndexPath) -> PhotoModel
+    
+    func configurePhotoCollectionCell(cell: PhotoCollectionCell)
 }
