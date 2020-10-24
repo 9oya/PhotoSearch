@@ -49,6 +49,9 @@
 		F5A3F6FD2543A6F300EA366A /* PhotoCollectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A3F6FC2543A6F300EA366A /* PhotoCollectionHeader.swift */; };
 		F5A3F7002543A70000EA366A /* PhotoCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A3F6FF2543A70000EA366A /* PhotoCollectionCell.swift */; };
 		F5A3F7082543B12600EA366A /* PhotoModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A3F7072543B12600EA366A /* PhotoModel.swift */; };
+		F5A426B02544298E00E8AEC4 /* PhotoTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A426AF2544298E00E8AEC4 /* PhotoTableCell.swift */; };
+		F5A426B32544299800E8AEC4 /* PhotoTableHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A426B22544299800E8AEC4 /* PhotoTableHeader.swift */; };
+		F5A426B72544588800E8AEC4 /* PhotoCollectionFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A426B62544588800E8AEC4 /* PhotoCollectionFlowLayout.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -92,6 +95,9 @@
 		F5A3F6FC2543A6F300EA366A /* PhotoCollectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCollectionHeader.swift; sourceTree = "<group>"; };
 		F5A3F6FF2543A70000EA366A /* PhotoCollectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCollectionCell.swift; sourceTree = "<group>"; };
 		F5A3F7072543B12600EA366A /* PhotoModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoModel.swift; sourceTree = "<group>"; };
+		F5A426AF2544298E00E8AEC4 /* PhotoTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoTableCell.swift; sourceTree = "<group>"; };
+		F5A426B22544299800E8AEC4 /* PhotoTableHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoTableHeader.swift; sourceTree = "<group>"; };
+		F5A426B62544588800E8AEC4 /* PhotoCollectionFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCollectionFlowLayout.swift; sourceTree = "<group>"; };
 		F9DD715EBFC4AFC6E7248063 /* DetailModuleInput.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DetailModuleInput.swift; sourceTree = "<group>"; };
 		FC06F2A5BB5648BE0D8F638E /* SearchRouterInput.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SearchRouterInput.swift; sourceTree = "<group>"; };
 		FDB0DCF3FA8064C7E36E46F5 /* HomeViewInput.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HomeViewInput.swift; sourceTree = "<group>"; };
@@ -304,6 +310,9 @@
 		F5A3F6DB2543995600EA366A /* PhotoSearch */ = {
 			isa = PBXGroup;
 			children = (
+				F5A426B52544585F00E8AEC4 /* CollectionFlowLayout */,
+				F5A426AE2544292F00E8AEC4 /* TableHeaders */,
+				F5A426AD2544292500E8AEC4 /* TableCells */,
 				F5A3F7062543B11C00EA366A /* Models */,
 				F5A3F7052543AA7C00EA366A /* Services */,
 				F5A3F7042543AA7300EA366A /* Utilities */,
@@ -391,6 +400,30 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		F5A426AD2544292500E8AEC4 /* TableCells */ = {
+			isa = PBXGroup;
+			children = (
+				F5A426AF2544298E00E8AEC4 /* PhotoTableCell.swift */,
+			);
+			path = TableCells;
+			sourceTree = "<group>";
+		};
+		F5A426AE2544292F00E8AEC4 /* TableHeaders */ = {
+			isa = PBXGroup;
+			children = (
+				F5A426B22544299800E8AEC4 /* PhotoTableHeader.swift */,
+			);
+			path = TableHeaders;
+			sourceTree = "<group>";
+		};
+		F5A426B52544585F00E8AEC4 /* CollectionFlowLayout */ = {
+			isa = PBXGroup;
+			children = (
+				F5A426B62544588800E8AEC4 /* PhotoCollectionFlowLayout.swift */,
+			);
+			path = CollectionFlowLayout;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -461,6 +494,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F5A3F6DD2543995600EA366A /* AppDelegate.swift in Sources */,
+				F5A426B72544588800E8AEC4 /* PhotoCollectionFlowLayout.swift in Sources */,
 				F5A3F6DF2543995600EA366A /* SceneDelegate.swift in Sources */,
 				3468F0243481EF987761D7D3 /* HomeViewInput.swift in Sources */,
 				A4F884FB55A169D39E1B70DA /* HomeViewOutput.swift in Sources */,
@@ -470,7 +504,9 @@
 				DB73027501D803949BDC21B5 /* HomeInteractorInput.swift in Sources */,
 				720AD5CEB087B2DB73F41437 /* HomeInteractorOutput.swift in Sources */,
 				90D14C6906F4979BF91412D1 /* HomeInteractor.swift in Sources */,
+				F5A426B32544299800E8AEC4 /* PhotoTableHeader.swift in Sources */,
 				EA2B8F5F9124DE9FD711DF7C /* HomeRouterInput.swift in Sources */,
+				F5A426B02544298E00E8AEC4 /* PhotoTableCell.swift in Sources */,
 				D853DCB7558954C0A556A9DC /* HomeRouter.swift in Sources */,
 				82BBAB7D435BC2A421ACEAD5 /* HomeConfigurator.swift in Sources */,
 				789667E2E27E7EDB40846677 /* SearchViewInput.swift in Sources */,

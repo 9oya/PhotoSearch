@@ -7,7 +7,7 @@
 
 import UIKit
 
-let phtoCollectionCellId = "phtoCollectionCellId"
+let photoCollectionCellId = "photoCollectionCellId"
 
 class PhotoCollectionCell: UICollectionViewCell {
     
@@ -25,6 +25,8 @@ class PhotoCollectionCell: UICollectionViewCell {
 
 extension PhotoCollectionCell {
     private func setupLayout() {
+        
+        backgroundColor = .white
         
         photoImageView = {
             let imageView = UIImageView()

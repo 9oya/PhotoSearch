@@ -26,4 +26,6 @@ protocol HomeViewOutput {
     func photoAt(indexPath: IndexPath) -> PhotoModel
     
     func configurePhotoCollectionCell(cell: PhotoCollectionCell)
+    
+    func configurePhotoTableCell(cell: PhotoTableCell)
 }

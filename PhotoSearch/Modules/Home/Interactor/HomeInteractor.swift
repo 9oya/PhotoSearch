@@ -32,4 +32,9 @@ class HomeInteractor: HomeInteractorInput {
     func configurePhotoCollectionCell(cell: PhotoCollectionCell) {
         
     }
+    
+    func configurePhotoTableCell(cell: PhotoTableCell) {
+        
+    }
+    
 }
