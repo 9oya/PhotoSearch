@@ -31,6 +31,14 @@ class PhotoCollectionHeader: UICollectionReusableView {
     func setBackgroundColor(color: UIColor, alphcomponent: CGFloat) {
         dynamicBackgrounColorView.backgroundColor = color.withAlphaComponent(alphcomponent)
     }
+    
+    func hideHeaderInnerBGBlinde() {
+        dynamicBackgrounColorView.isHidden = true
+    }
+    
+    func showHeaderInnerBGBlinde() {
+        dynamicBackgrounColorView.isHidden = false
+    }
 }
 
 extension PhotoCollectionHeader {
