@@ -17,6 +17,8 @@ class HomeViewController: UIViewController, HomeViewInput {
     
     var searchBar: UISearchBar!
     
+    var headerTitleLabel: UILabel!
+    
     let searchBarHeight: CGFloat = 74
     
     var output: HomeViewOutput!
@@ -115,7 +117,11 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
         return CGSize(width: view.frame.width, height: 500)
     }
 
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+//    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+//        return 1;
+//    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 1;
     }
     
@@ -211,6 +217,15 @@ extension HomeViewController {
             return collectionView
         }()
         
+        headerTitleLabel = {
+            let lable = UILabel()
+            lable.text = "Photos for everyone"
+            lable.textColor = .white
+            lable.font = .systemFont(ofSize: 25, weight: .bold)
+            lable.translatesAutoresizingMaskIntoConstraints = false
+            return lable
+        }()
+        
         searchBar = {
             let searchBar = UISearchBar(frame: CGRect(x: 0, y: 100, width: view.frame.width, height: searchBarHeight))
             searchBar.isTranslucent = true
@@ -234,6 +249,7 @@ extension HomeViewController {
         UIBarButtonItem.appearance(whenContainedInInstancesOf: [UISearchBar.self]).setTitleTextAttributes(cancelButtonAttributes, for: .normal)
         
         view.addSubview(photoCollectionView)
+        view.addSubview(headerTitleLabel)
         view.addSubview(searchBar)
         
         searchBar.delegate = self
@@ -244,5 +260,8 @@ extension HomeViewController {
         photoCollectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0).isActive = true
         photoCollectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0).isActive = true
         photoCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
+        
+        headerTitleLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 0).isActive = true
+        headerTitleLabel.bottomAnchor.constraint(equalTo: searchBar.topAnchor, constant: 5).isActive = true
     }
 }
