@@ -32,11 +32,11 @@ class PhotoCollectionHeader: UICollectionReusableView {
         dynamicBackgrounColorView.backgroundColor = color.withAlphaComponent(alphcomponent)
     }
     
-    func hideHeaderInnerBGBlinde() {
+    func hideHeaderInnerBGBlind() {
         dynamicBackgrounColorView.isHidden = true
     }
     
-    func showHeaderInnerBGBlinde() {
+    func showHeaderInnerBGBlind() {
         dynamicBackgrounColorView.isHidden = false
     }
 }

@@ -15,5 +15,5 @@ protocol HomeViewInput: class {
 
     func setupInitialState()
     
-    func reloadPhotoTableView()
+    func reloadPhotoCollectionView()
 }

@@ -39,12 +39,8 @@ class HomePresenter: HomeModuleInput, HomeViewOutput, HomeInteractorOutput {
         interactor.configurePhotoCollectionCell(cell: cell)
     }
     
-    func configurePhotoTableCell(cell: PhotoTableCell) {
-        interactor.configurePhotoTableCell(cell: cell)
-    }
-    
     // MARK: HomeInteractorOutput
     func reloadCollectionView() {
-        view.reloadPhotoTableView()
+        view.reloadPhotoCollectionView()
     }
 }

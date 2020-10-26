@@ -12,28 +12,23 @@ class HomeViewController: UIViewController, HomeViewInput {
     
     // MARK: Properties
     var photoCollectionView: UICollectionView!
-    
     var photoTableView: UITableView!
-    
     var searchBar: UISearchBar!
-    
-    var headerBGBlindView: UIView!
-    
+    var headerOuterBGBlindView: UIView!
     var headerTitleLabel: UILabel!
-    
-    var headerBGBlindHeightConstraint: NSLayoutConstraint!
+    var headerOuterBGBlindHeightConstraint: NSLayoutConstraint!
     
     let searchBarHeight: CGFloat = 74
     var headerHeight: CGFloat!
     var initialYForSearchBar: CGFloat!
     var lastCollectionContentOffset: CGFloat = 0.0
     
+    var setBackgroundColor: ((UIColor, CGFloat) -> Void)! = nil
+    var hideHeaderInnerBGBlind: (() -> (Void))! = nil
+    var showHeaderInnerBGBlind: (() -> (Void))! = nil
+    
     var output: HomeViewOutput!
     let configurator = HomeModuleConfigurator()
-    
-    var setBackgroundColor: ((UIColor, CGFloat) -> Void)! = nil
-    var hideHeaderInnerBGBlinde: (() -> (Void))! = nil
-    var showHeaderInnerBGBlinde: (() -> (Void))! = nil
     
     // MARK: Life cycle
     override func loadView() {
@@ -58,24 +53,34 @@ class HomeViewController: UIViewController, HomeViewInput {
     
     // MARK: Actions
     func toggleSearchBarLayout() {
+        if searchBar.isTranslucent {
+            changeSearchBarLayoutToTranslucentState()
+        } else {
+            changeSearchBarLayoutToOpaqueState()
+        }
+    }
+    
+    func changeSearchBarLayoutToTranslucentState() {
         if let searchTextField = searchBar.value(forKey: "searchField") as? UITextField {
-            if searchBar.isTranslucent {
-                searchTextField.backgroundColor = UIColor.lightGray.withAlphaComponent(0.7)
-                searchTextField.textColor = .white
-                searchTextField.attributedPlaceholder = NSAttributedString(string: "Search photos", attributes: [NSAttributedString.Key.foregroundColor : UIColor.white])
-                
-                let glassIconView = searchTextField.leftView as? UIImageView
-                glassIconView!.image = glassIconView!.image?.withRenderingMode(.alwaysTemplate)
-                glassIconView!.tintColor = .white
-            } else {
-                searchTextField.backgroundColor = UIColor.lightGray.withAlphaComponent(0.5)
-                searchTextField.textColor = .black
-                searchTextField.attributedPlaceholder = NSAttributedString(string: "Search photos", attributes: [NSAttributedString.Key.foregroundColor : UIColor.gray])
-                
-                let glassIconView = searchTextField.leftView as? UIImageView
-                glassIconView!.image = glassIconView!.image?.withRenderingMode(.alwaysTemplate)
-                glassIconView!.tintColor = .gray
-            }
+            searchTextField.backgroundColor = UIColor.lightGray.withAlphaComponent(0.7)
+            searchTextField.textColor = .white
+            searchTextField.attributedPlaceholder = NSAttributedString(string: "Search photos", attributes: [NSAttributedString.Key.foregroundColor : UIColor.white])
+            
+            let glassIconView = searchTextField.leftView as? UIImageView
+            glassIconView!.image = glassIconView!.image?.withRenderingMode(.alwaysTemplate)
+            glassIconView!.tintColor = .white
+        }
+    }
+    
+    func changeSearchBarLayoutToOpaqueState() {
+        if let searchTextField = searchBar.value(forKey: "searchField") as? UITextField {
+            searchTextField.backgroundColor = UIColor.lightGray.withAlphaComponent(0.5)
+            searchTextField.textColor = .black
+            searchTextField.attributedPlaceholder = NSAttributedString(string: "Search photos", attributes: [NSAttributedString.Key.foregroundColor : UIColor.gray])
+            
+            let glassIconView = searchTextField.leftView as? UIImageView
+            glassIconView!.image = glassIconView!.image?.withRenderingMode(.alwaysTemplate)
+            glassIconView!.tintColor = .gray
         }
     }
     
@@ -96,7 +101,7 @@ class HomeViewController: UIViewController, HomeViewInput {
         output.loadPhotos(keyword: nil, fetchStart: 0, fetchSize: 10)
     }
     
-    func reloadPhotoTableView() {
+    func reloadPhotoCollectionView() {
         photoCollectionView.reloadData()
     }
 }
@@ -115,8 +120,8 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: photoCollectionHeaderId, for: indexPath) as!PhotoCollectionHeader
         setBackgroundColor = headerView.setBackgroundColor(color:alphcomponent:)
-        hideHeaderInnerBGBlinde = headerView.hideHeaderInnerBGBlinde
-        showHeaderInnerBGBlinde = headerView.showHeaderInnerBGBlinde
+        hideHeaderInnerBGBlind = headerView.hideHeaderInnerBGBlind
+        showHeaderInnerBGBlind = headerView.showHeaderInnerBGBlind
         return headerView
     }
 
@@ -166,20 +171,20 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
         
         // Start changing layout
         if view.frame.height <= 667 {
+            // SE, 6, 7, 8
             if contentOffSetY > initialYForSearchBar {
-                // SE, 6, 7, 8
                 searchBar.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: searchBarHeight)
-                headerBGBlindHeightConstraint.constant = headerHeight - contentOffSetY
+                headerOuterBGBlindHeightConstraint.constant = headerHeight - contentOffSetY
                 hideHeaderTitleLabel()
 
-                // Swap header background blinde view
+                // Swap header background blind views
                 if contentOffSetY > 160 {
-                    hideHeaderInnerBGBlinde()
-                    headerBGBlindView.isHidden = false
-                    headerBGBlindHeightConstraint.constant = searchBarHeight
+                    hideHeaderInnerBGBlind()
+                    headerOuterBGBlindView.isHidden = false
+                    headerOuterBGBlindHeightConstraint.constant = searchBarHeight
                 } else {
-                    showHeaderInnerBGBlinde()
-                    headerBGBlindView.isHidden = true
+                    showHeaderInnerBGBlind()
+                    headerOuterBGBlindView.isHidden = true
                 }
                 return
             }
@@ -187,39 +192,30 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
             // 11, 11Pro, 11ProMax
             if contentOffSetY >= 134 {
                 searchBar.frame = CGRect(x: 0, y: (view.frame.height * 0.15) - 80, width: view.frame.width, height: searchBarHeight)
-                headerBGBlindHeightConstraint.constant = headerHeight - contentOffSetY
+                headerOuterBGBlindHeightConstraint.constant = headerHeight - contentOffSetY
                 hideHeaderTitleLabel()
                 
-                // Swap header background blinde view
+                // Swap header background blind views
                 if contentOffSetY > 223 {
-                    hideHeaderInnerBGBlinde()
-                    headerBGBlindView.isHidden = false
-                    headerBGBlindHeightConstraint.constant = searchBarHeight + searchBar.frame.origin.y
+                    hideHeaderInnerBGBlind()
+                    headerOuterBGBlindView.isHidden = false
+                    headerOuterBGBlindHeightConstraint.constant = searchBarHeight + searchBar.frame.origin.y
                 } else {
-                    showHeaderInnerBGBlinde()
-                    headerBGBlindView.isHidden = true
+                    showHeaderInnerBGBlind()
+                    headerOuterBGBlindView.isHidden = true
                 }
                 return
             }
         }
         
-        showHeaderTitleLabel()
-        
+        // Change header background view state
         let alphaComp = ((contentOffSetY * 0.01) - 0.3) < 0.7 ? ((contentOffSetY * 0.01) - 0.3) : 0.7
         setBackgroundColor(UIColor.white, alphaComp)
-        headerBGBlindView.backgroundColor = UIColor.white.withAlphaComponent(alphaComp)
-        headerBGBlindHeightConstraint.constant = headerHeight - contentOffSetY
+        headerOuterBGBlindView.backgroundColor = UIColor.white.withAlphaComponent(alphaComp)
+        headerOuterBGBlindHeightConstraint.constant = headerHeight - contentOffSetY
+        showHeaderTitleLabel()
         
-        if let searchTextField = searchBar.value(forKey: "searchField") as? UITextField {
-            searchTextField.backgroundColor = UIColor.lightGray.withAlphaComponent(0.7)
-            searchTextField.textColor = .white
-            searchTextField.attributedPlaceholder = NSAttributedString(string: "Search photos", attributes: [NSAttributedString.Key.foregroundColor : UIColor.white])
-            
-            let glassIconView = searchTextField.leftView as? UIImageView
-            glassIconView!.image = glassIconView!.image?.withRenderingMode(.alwaysTemplate)
-            glassIconView!.tintColor = .white
-        }
-        
+        // Change searchBar's Y offset
         searchBar.frame = CGRect(x: 0, y: initialYForSearchBar - contentOffSetY, width: view.frame.width, height: searchBarHeight)
     }
 }
@@ -290,7 +286,6 @@ extension HomeViewController {
             collectionView.translatesAutoresizingMaskIntoConstraints = false
             return collectionView
         }()
-        
         headerTitleLabel = {
             let lable = UILabel()
             lable.text = "Photos for everyone"
@@ -299,7 +294,6 @@ extension HomeViewController {
             lable.translatesAutoresizingMaskIntoConstraints = false
             return lable
         }()
-        
         searchBar = {
             let searchBar = UISearchBar(frame: CGRect(x: 0, y: initialYForSearchBar, width: view.frame.width, height: searchBarHeight))
             searchBar.isTranslucent = true
@@ -307,8 +301,7 @@ extension HomeViewController {
             searchBar.backgroundImage = UIImage()
             return searchBar
         }()
-        
-        headerBGBlindView = {
+        headerOuterBGBlindView = {
             let view = UIView()
             view.translatesAutoresizingMaskIntoConstraints = false
             return view
@@ -329,7 +322,7 @@ extension HomeViewController {
         UIBarButtonItem.appearance(whenContainedInInstancesOf: [UISearchBar.self]).setTitleTextAttributes(cancelButtonAttributes, for: .normal)
         
         view.addSubview(photoCollectionView)
-        view.addSubview(headerBGBlindView)
+        view.addSubview(headerOuterBGBlindView)
         view.addSubview(headerTitleLabel)
         view.addSubview(searchBar)
         
@@ -342,12 +335,12 @@ extension HomeViewController {
         photoCollectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0).isActive = true
         photoCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
         
-        headerBGBlindView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -(view.frame.height * 0.06)).isActive = true
-        headerBGBlindView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0).isActive = true
-        headerBGBlindView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0).isActive = true
-        headerBGBlindHeightConstraint = headerBGBlindView.heightAnchor.constraint(equalToConstant: view.frame.height / 2.4)
-        headerBGBlindHeightConstraint.priority = UILayoutPriority(999)
-        headerBGBlindHeightConstraint.isActive = true
+        headerOuterBGBlindView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -(view.frame.height * 0.06)).isActive = true
+        headerOuterBGBlindView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0).isActive = true
+        headerOuterBGBlindView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0).isActive = true
+        headerOuterBGBlindHeightConstraint = headerOuterBGBlindView.heightAnchor.constraint(equalToConstant: view.frame.height / 2.4)
+        headerOuterBGBlindHeightConstraint.priority = UILayoutPriority(999)
+        headerOuterBGBlindHeightConstraint.isActive = true
         
         headerTitleLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 0).isActive = true
         headerTitleLabel.bottomAnchor.constraint(equalTo: searchBar.topAnchor, constant: 5).isActive = true
