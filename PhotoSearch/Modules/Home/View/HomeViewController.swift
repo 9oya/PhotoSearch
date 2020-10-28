@@ -22,6 +22,7 @@ class HomeViewController: UIViewController, HomeViewInput {
     var headerHeight: CGFloat!
     var initialYForSearchBar: CGFloat!
     var lastContentOffsetY: CGFloat = 0.0
+    var isScrollToLoading: Bool = false
     
     var setHeaderInnerBGBlindColor: ((UIColor, CGFloat) -> Void)! = nil
     var hideHeaderInnerBGBlind: (() -> (Void))! = nil
@@ -103,6 +104,7 @@ class HomeViewController: UIViewController, HomeViewInput {
     
     func reloadPhotoCollectionView() {
         photoCollectionView.reloadData()
+        isScrollToLoading = false
     }
 }
 
@@ -158,17 +160,22 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
         let contentOffsetY = scrollView.contentOffset.y
-//        print("ContentOffSetY: \(contentOffsetY)")
-//        print("Frame Height: \(view.frame.height)")
+        print("ContentOffSetY: \(contentOffsetY)")
+        print("Frame Height: \(view.frame.height)")
 //        print("Header Height: \(headerHeight!)")
 //        print("InitialYForSearchBar: \(initialYForSearchBar!)")
+        print("CollectionOffSetY: \(photoCollectionView.contentOffset.y)")
         
-        if (scrollView.frame.size.height + contentOffsetY) > (scrollView.contentSize.height - 200) {
+        if (scrollView.frame.size.height + contentOffsetY) > (scrollView.contentSize.height - 300) {
             if lastContentOffsetY > contentOffsetY {
                 // Case scrolled up
                 return
             }
             lastContentOffsetY = contentOffsetY
+            if isScrollToLoading {
+                return
+            }
+            isScrollToLoading = true
             output.loadPhotos(keyword: nil, fetchStart: 0, fetchSize: 0)
         }
         
@@ -178,8 +185,8 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
         }
         
         // Start changing layout
-        if view.frame.height <= 667 {
-            // SE, 6, 7, 8
+        if view.frame.height <= 568 {
+            // SE
             if contentOffsetY > initialYForSearchBar {
                 searchBar.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: searchBarHeight)
                 headerOuterBGBlindHeightConstraint.constant = headerHeight - contentOffsetY
@@ -190,6 +197,24 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
                     hideHeaderInnerBGBlind()
                     headerOuterBGBlindView.isHidden = false
                     headerOuterBGBlindHeightConstraint.constant = searchBarHeight
+                } else {
+                    showHeaderInnerBGBlind()
+                    headerOuterBGBlindView.isHidden = true
+                }
+                return
+            }
+        } else if view.frame.height <= 667 {
+            // 6, 7, 8
+            if contentOffsetY > initialYForSearchBar {
+                searchBar.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: searchBarHeight)
+                headerOuterBGBlindHeightConstraint.constant = headerHeight - contentOffsetY
+                hideHeaderTitleLabel()
+
+                // Swap header background blind views
+                if contentOffsetY > 184 {
+                    hideHeaderInnerBGBlind()
+                    headerOuterBGBlindView.isHidden = false
+                    headerOuterBGBlindHeightConstraint.constant = searchBarHeight + 20
                 } else {
                     showHeaderInnerBGBlind()
                     headerOuterBGBlindView.isHidden = true
@@ -217,7 +242,7 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
         }
         
         // Change header background view state
-        let alphaComp = ((contentOffsetY * 0.01) - 0.3) < 0.7 ? ((contentOffsetY * 0.01) - 0.3) : 0.7
+        let alphaComp = ((contentOffsetY * 0.01) - 0.3) < 0.9 ? ((contentOffsetY * 0.01) - 0.3) : 0.9
         setHeaderInnerBGBlindColor(UIColor.white, alphaComp)
         headerOuterBGBlindView.backgroundColor = UIColor.white.withAlphaComponent(alphaComp + 0.2)
         headerOuterBGBlindHeightConstraint.constant = headerHeight - contentOffsetY
@@ -240,7 +265,16 @@ extension HomeViewController: UISearchResultsUpdating, UISearchBarDelegate {
         self.lastContentOffsetY = self.photoCollectionView.contentOffset.y
         
         if self.photoCollectionView.contentOffset.y < initialYForSearchBar {
-            self.photoCollectionView.contentOffset.y = view.frame.height * 0.15
+            if self.view.frame.height <= 568 {
+                // SE
+                self.photoCollectionView.contentOffset.y = 160
+            } else if self.view.frame.height <= 667 {
+                // 6, 7, 8
+                self.photoCollectionView.contentOffset.y = 184
+            } else if self.view.frame.height >= 812 {
+                // 11, 11Pro, 11ProMax
+                self.photoCollectionView.contentOffset.y = 223
+            }
         }
         
         hideHeaderTitleLabel()
@@ -264,9 +298,21 @@ extension HomeViewController: UISearchResultsUpdating, UISearchBarDelegate {
             if self.lastContentOffsetY == 0.0 {
                 self.searchBar.frame = CGRect(x: 0, y: self.initialYForSearchBar, width: self.view.frame.width, height: self.searchBarHeight)
             }
-            
-            if self.photoCollectionView.contentOffset.y < 160 {
-                self.photoCollectionView.contentOffset.y = self.lastContentOffsetY
+            if self.view.frame.height <= 568 {
+                // SE
+                if self.photoCollectionView.contentOffset.y <= 160 {
+                    self.photoCollectionView.contentOffset.y = self.lastContentOffsetY
+                }
+            } else if self.view.frame.height <= 667 {
+                // 6, 7, 8
+                if self.photoCollectionView.contentOffset.y <= 184 {
+                    self.photoCollectionView.contentOffset.y = self.lastContentOffsetY
+                }
+            } else if self.view.frame.height >= 812 {
+                // 11, 11Pro, 11ProMax
+                if self.photoCollectionView.contentOffset.y <= 223 {
+                    self.photoCollectionView.contentOffset.y = self.lastContentOffsetY
+                }
             }
         }
     }
@@ -302,17 +348,17 @@ extension HomeViewController {
             lable.translatesAutoresizingMaskIntoConstraints = false
             return lable
         }()
+        headerOuterBGBlindView = {
+            let view = UIView()
+            view.translatesAutoresizingMaskIntoConstraints = false
+            return view
+        }()
         searchBar = {
             let searchBar = UISearchBar(frame: CGRect(x: 0, y: initialYForSearchBar, width: view.frame.width, height: searchBarHeight))
             searchBar.isTranslucent = true
             searchBar.tintColor = .darkGray
             searchBar.backgroundImage = UIImage()
             return searchBar
-        }()
-        headerOuterBGBlindView = {
-            let view = UIView()
-            view.translatesAutoresizingMaskIntoConstraints = false
-            return view
         }()
         
         if let searchTextField = searchBar.value(forKey: "searchField") as? UITextField {
