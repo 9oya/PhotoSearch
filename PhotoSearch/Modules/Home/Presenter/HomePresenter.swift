@@ -24,7 +24,7 @@ class HomePresenter: HomeModuleInput, HomeViewOutput, HomeInteractorOutput {
     }
     
     func numberOfHeaderSections() -> Int {
-        return interactor.numberOfPhotos()
+        return interactor.numberOfHeaderSections()
     }
     
     func numberOfPhotos() -> Int {
@@ -34,9 +34,13 @@ class HomePresenter: HomeModuleInput, HomeViewOutput, HomeInteractorOutput {
     func photoAt(indexPath: IndexPath) -> PhotoModel {
         return interactor.photoAt(indexPath: indexPath)
     }
+
+    func configurePhotoCollectionCell(cell: PhotoCollectionCell, indexPath: IndexPath) {
+        interactor.configurePhotoCollectionCell(cell: cell, indexPath: indexPath)
+    }
     
-    func configurePhotoCollectionCell(cell: PhotoCollectionCell) {
-        interactor.configurePhotoCollectionCell(cell: cell)
+    func getCellSize(width:CGFloat, indexPath: IndexPath) -> CGSize {
+        return interactor.getCellSize(width: width, indexPath: indexPath)
     }
     
     // MARK: HomeInteractorOutput

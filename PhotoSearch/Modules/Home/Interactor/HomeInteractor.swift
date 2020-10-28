@@ -14,10 +14,15 @@ class HomeInteractor: HomeInteractorInput {
     
     var getPhotos: (() -> [PhotoModel])?
     
+    var getNextPageOfPhotos: (() -> Int) = {
+        return 1
+    }
+    
     // MARK: HomeInteractorInput
     func loadPhotos(keyword: String?, fetchStart: Int, fetchSize: Int) {
+        let page = getNextPageOfPhotos()
         var dataTask: URLSessionDataTask?
-        dataTask = URLSession(configuration: .default).dataTask(with: APIRouter.getPhotos(clientId: "LkoRkbGfqK7_iN5XFWuWqT1VP71I8BTnNvt5egvBbpM", page: 1).asURLRequest(), completionHandler: { (data, response, error) in
+        dataTask = URLSession(configuration: .default).dataTask(with: APIRouter.getPhotos(clientId: "LkoRkbGfqK7_iN5XFWuWqT1VP71I8BTnNvt5egvBbpM", page: page).asURLRequest(), completionHandler: { (data, response, error) in
             defer {
                 dataTask = nil
             }
@@ -28,9 +33,17 @@ class HomeInteractor: HomeInteractorInput {
             if let data = data, let response = response as? HTTPURLResponse {
                 if response.statusCode == 200 {
                     do {
-                        let decodedData = try JSONDecoder().decode([PhotoModel].self, from: data)
+                        let newPhotos = try JSONDecoder().decode([PhotoModel].self, from: data)
+                        let currPage = self.getNextPageOfPhotos()
+                        let prevPhotos = self.getPhotos?()
                         self.getPhotos = {
-                            return decodedData
+                            return prevPhotos != nil ? prevPhotos! + newPhotos : newPhotos
+                        }
+                        self.getNextPageOfPhotos = {
+                            return currPage + 1
+                        }
+                        DispatchQueue.main.async {
+                            self.output.reloadCollectionView()
                         }
                     } catch let error {
                         print(error.localizedDescription)
@@ -52,11 +65,33 @@ class HomeInteractor: HomeInteractorInput {
     }
     
     func numberOfPhotos() -> Int {
-        return 10
+        return getPhotos != nil ? getPhotos!().count : 0
     }
     
-    func configurePhotoCollectionCell(cell: PhotoCollectionCell) {
+    func configurePhotoCollectionCell(cell: PhotoCollectionCell, indexPath: IndexPath) {
+        let photo = photoAt(indexPath: indexPath)
+        DispatchQueue.global(qos: .default).async {
+            if let urlString = photo.urls["small"], let url = URL(string: urlString) {
+                do {
+                    let data = try Data(contentsOf: url)
+                    DispatchQueue.main.async {
+                        cell.photoImageView.image = UIImage(data: data)
+                    }
+                } catch let error {
+                    print(error.localizedDescription)
+                }
+            } else {
+                print("There is no value at urls[key]: \'small\'")
+            }
+        }
+    }
+    
+    func getCellSize(width:CGFloat, indexPath: IndexPath) -> CGSize {
+        let photo = photoAt(indexPath: indexPath)
         
+        let ratio: CGFloat = width / CGFloat(photo.width)
+        
+        return CGSize(width: width, height: CGFloat(photo.height) * ratio)
     }
     
 }

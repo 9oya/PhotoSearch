@@ -6,7 +6,7 @@
 //  Copyright © 2020 9oya.com. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 protocol HomeInteractorInput {
     
@@ -18,6 +18,8 @@ protocol HomeInteractorInput {
     
     func photoAt(indexPath: IndexPath) -> PhotoModel
     
-    func configurePhotoCollectionCell(cell: PhotoCollectionCell)
+    func configurePhotoCollectionCell(cell: PhotoCollectionCell, indexPath: IndexPath)
+    
+    func getCellSize(width:CGFloat, indexPath: IndexPath) -> CGSize
     
 }
