@@ -29,6 +29,7 @@ class HomeViewController: UIViewController, HomeViewInput {
     var isScrollToLoading: Bool = false
     var isDarkContentBackground = true
     var searchKeyword: String?
+    var isCurrDetailPhotoFromOrigin: Bool = true
     
     var setHeaderInnerBGBlindColor: ((UIColor, CGFloat) -> Void)! = nil
     var hideHeaderInnerBGBlind: (() -> (Void))! = nil
@@ -125,13 +126,31 @@ class HomeViewController: UIViewController, HomeViewInput {
         }
     }
     
-    @objc func cancelButtonTapped() {
-        detailPhotoCollectionView.isHidden = true
-        isDarkContentBackground = false
-        UIView.animate(withDuration: 0.3) {
-            self.setNeedsStatusBarAppearanceUpdate()
+    func hideDetailPhotoCollection() {
+        UIView.transition(with: detailPhotoCollectionView, duration: 0.7, options: .transitionCrossDissolve) {
+            self.detailPhotoCollectionView.isHidden = true
         }
+    }
+    
+    func showDetailPhotoCollection() {
+        UIView.transition(with: detailPhotoCollectionView, duration: 0.5, options: .transitionCrossDissolve) {
+            self.detailPhotoCollectionView.isHidden = false
+        }
+    }
+    
+    @objc func cancelButtonTapped() {
+        
+//        let currIndexPath = IndexPath(item: currItemOfDetailPhoto, section: 0)
+//        if isCurrDetailPhotoFromOrigin {
+//            originPhotoCollectionView.scrollToItem(at: currIndexPath, at: .centeredVertically, animated: false)
+//        } else {
+//            searchResultPhotoCollectionView.scrollToItem(at: currIndexPath, at: .centeredVertically, animated: false)
+//        }
+        
+        hideDetailPhotoCollection()
+        setStatusBarToBlack()
         cancelButton.isHidden = true
+        
     }
     
     // MARK: HomeViewInput
@@ -213,13 +232,24 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
     // MARK: UICollectionViewDelegate
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == originPhotoCollectionView {
-            detailPhotoCollectionView.isHidden = false
+            output.swapDeatilPhotosIntoOriginPhotos()
+            detailPhotoCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: false)
+            originPhotoCollectionView.scrollToItem(at: indexPath, at: .centeredVertically, animated: false)
+            showDetailPhotoCollection()
             cancelButton.isHidden = false
+            isCurrDetailPhotoFromOrigin = true
             setStatusBarToWhite()
         } else if collectionView == searchResultPhotoCollectionView {
-            
+            detailPhotoCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: false)
+            searchResultPhotoCollectionView.scrollToItem(at: indexPath, at: .centeredVertically, animated: false)
+            showDetailPhotoCollection()
+            cancelButton.isHidden = false
+            isCurrDetailPhotoFromOrigin = false
+            setStatusBarToWhite()
         } else {
-            
+            UIView.transition(with: cancelButton, duration: 0.5, options: .transitionCrossDissolve) {
+                self.cancelButton.isHidden.toggle()
+            }
         }
     }
 
@@ -233,8 +263,8 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
             if view.frame.height <= 568 {
                 // SE
                 headerSize = CGSize(width: view.frame.width, height: searchBarHeight)
-            } else if view.frame.height <= 667 {
-                // 6, 7, 8
+            } else if view.frame.height <= 736 {
+                // 6, 7, 8, plus
                 headerSize = CGSize(width: view.frame.width, height: searchBarHeight + 20)
             } else if view.frame.height >= 812 {
                 // 11, 11Pro, 11ProMax
@@ -270,14 +300,30 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
     }
     
     // MARK: UIScrollViewDelegate
+    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        
+        if scrollView == detailPhotoCollectionView {
+            let currItemOfDetailPhoto = Int(targetContentOffset.pointee.x / view.frame.width)
+            if currItemOfDetailPhoto == (output.numberOfDetailPhotos() - 2) {
+                if isCurrDetailPhotoFromOrigin {
+                    output.loadPhotosWith()
+                } else {
+                    output.loadPhotosWith(keyword: searchKeyword!)
+                }
+            }
+            let currIndexPath = IndexPath(item: currItemOfDetailPhoto, section: 0)
+            if isCurrDetailPhotoFromOrigin {
+                originPhotoCollectionView.scrollToItem(at: currIndexPath, at: .centeredVertically, animated: false)
+            } else {
+                searchResultPhotoCollectionView.scrollToItem(at: currIndexPath, at: .centeredVertically, animated: false)
+            }
+        }
+        
+    }
+    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
         let contentOffsetY = scrollView.contentOffset.y
-//        print("ContentOffSetY: \(contentOffsetY)")
-//        print("Frame Height: \(view.frame.height)")
-//        print("Header Height: \(headerHeight!)")
-//        print("InitialYForSearchBar: \(initialYForSearchBar!)")
-//        print("CollectionOffSetY: \(originPhotoCollectionView.contentOffset.y)")
         
         // ========= Scroll to load more =========
         if scrollView == searchResultPhotoCollectionView {
@@ -313,7 +359,7 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
             return
         }
         
-        // ========= Chaingin Search bar layout =========
+        // ========= Changing Search bar and header view layout =========
         if !searchBar.isTranslucent {
             // Stop changing layout when searchBar is activating...
             return
@@ -340,8 +386,8 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
                 }
                 return
             }
-        } else if view.frame.height <= 667 {
-            // 6, 7, 8
+        } else if view.frame.height <= 736 {
+            // 6, 7, 8, plus
             if contentOffsetY > initialYForSearchBar {
                 searchBar.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: searchBarHeight)
                 headerOuterBGBlindHeightConstraint.constant = headerHeight - contentOffsetY
@@ -395,12 +441,7 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
     }
 }
 
-extension HomeViewController: UISearchResultsUpdating, UISearchBarDelegate {
-    // MARK: UISearchResultsUpdating
-    func updateSearchResults(for searchController: UISearchController) {
-        
-    }
-
+extension HomeViewController: UISearchBarDelegate {
     // MARK: UISearchBarDelegate
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         
@@ -411,8 +452,8 @@ extension HomeViewController: UISearchResultsUpdating, UISearchBarDelegate {
             if self.view.frame.height <= 568 {
                 // SE
                 self.originPhotoCollectionView.contentOffset.y = 160
-            } else if self.view.frame.height <= 667 {
-                // 6, 7, 8
+            } else if self.view.frame.height <= 736 {
+                // 6, 7, 8, plus
                 self.originPhotoCollectionView.contentOffset.y = 184
             } else if self.view.frame.height >= 812 {
                 // 11, 11Pro, 11ProMax
@@ -458,22 +499,20 @@ extension HomeViewController: UISearchResultsUpdating, UISearchBarDelegate {
                 // SE
                 if self.originPhotoCollectionView.contentOffset.y <= 160 {
                     self.originPhotoCollectionView.contentOffset.y = self.lastContentOffsetYOfOrigin
-                    self.setStatusBarToWhite()
                 }
-            } else if self.view.frame.height <= 667 {
-                // 6, 7, 8
+            } else if self.view.frame.height <= 736 {
+                // 6, 7, 8, plus
                 if self.originPhotoCollectionView.contentOffset.y <= 184 {
                     self.originPhotoCollectionView.contentOffset.y = self.lastContentOffsetYOfOrigin
-                    self.setStatusBarToWhite()
                 }
             } else if self.view.frame.height >= 812 {
                 // 11, 11Pro, 11ProMax
                 if self.originPhotoCollectionView.contentOffset.y <= 223 {
                     self.originPhotoCollectionView.contentOffset.y = self.lastContentOffsetYOfOrigin
                     self.headerOuterBGBlindView.isHidden = true
-                    self.setStatusBarToWhite()
                 }
             }
+            self.setStatusBarToWhite()
         }
     }
     

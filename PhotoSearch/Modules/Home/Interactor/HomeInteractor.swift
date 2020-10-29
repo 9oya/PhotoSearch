@@ -191,4 +191,9 @@ class HomeInteractor: HomeInteractorInput {
         }
     }
     
+    func swapDeatilPhotosIntoOriginPhotos() {
+        getDetailPhotos = getOriginPhotos
+        output.reloadDetailPhotoCollectionView()
+    }
+    
 }

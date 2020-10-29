@@ -324,7 +324,6 @@
 				F5A3F6F225439ED900EA366A /* AppStart */,
 				F5A3F6F425439EF100EA366A /* Cells */,
 				F5A426B52544585F00E8AEC4 /* CollectionFlowLayout */,
-				F5A3F6F625439FD600EA366A /* Extensions */,
 				F5A3F6F525439EFA00EA366A /* Headers */,
 				F5A3F7062543B11C00EA366A /* Models */,
 				F5A3F6F325439EE300EA366A /* Modules */,
@@ -369,13 +368,6 @@
 				F5EF30AF254A527D00C8E662 /* SearchResultPhotoCollectionHeader.swift */,
 			);
 			path = Headers;
-			sourceTree = "<group>";
-		};
-		F5A3F6F625439FD600EA366A /* Extensions */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Extensions;
 			sourceTree = "<group>";
 		};
 		F5A3F7022543A9AF00EA366A /* Resources */ = {

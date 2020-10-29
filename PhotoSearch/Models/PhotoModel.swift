@@ -19,11 +19,11 @@ struct PhotoModel: Codable {
     let description: String?
     let alt_description: String?
     let urls: [String: String]
-//    let links: [String: String]
-//    let categories: [String]?
-//    let likes: Int
-//    let liked_by_user: Bool
-//    let current_user_collections: [String]?
+    let links: [String: String]
+    let categories: [String]?
+    let likes: Int
+    let liked_by_user: Bool
+    let current_user_collections: [String]?
 //    let sponsorship: SponsorshipModel?
 //    let user: UserModel?
 }

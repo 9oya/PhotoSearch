@@ -49,4 +49,6 @@ protocol HomeViewOutput {
     
     func resetSearchResultPhotos()
     
+    func swapDeatilPhotosIntoOriginPhotos()
+    
 }
