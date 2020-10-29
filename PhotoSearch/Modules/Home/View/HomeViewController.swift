@@ -481,20 +481,23 @@ extension HomeViewController: UISearchBarDelegate {
                 // SE
                 if self.originPhotoCollectionView.contentOffset.y <= 160 {
                     self.originPhotoCollectionView.contentOffset.y = self.lastContentOffsetYOfOrigin
+                    self.setStatusBarToWhite()
                 }
             } else if self.view.frame.height <= 736 {
                 // 6, 7, 8, plus
                 if self.originPhotoCollectionView.contentOffset.y <= 184 {
                     self.originPhotoCollectionView.contentOffset.y = self.lastContentOffsetYOfOrigin
+                    self.setStatusBarToWhite()
                 }
             } else if self.view.frame.height >= 812 {
                 // 11, 11Pro, 11ProMax
                 if self.originPhotoCollectionView.contentOffset.y <= 223 {
                     self.originPhotoCollectionView.contentOffset.y = self.lastContentOffsetYOfOrigin
                     self.headerOuterBGBlindView.isHidden = true
+                    self.setStatusBarToWhite()
                 }
             }
-            self.setStatusBarToWhite()
+            
         }
     }
     

@@ -42,11 +42,7 @@ enum APIRouter {
     // MARK: Parameters
     private var parameters: [String: Any]? {
         switch self {
-        case .getRandomPhoto:
-            return nil
-        case .getPhotos:
-            return nil
-        case .searchPhotos:
+        case .getRandomPhoto, .getPhotos, .searchPhotos:
             return nil
         }
     }
