@@ -12,7 +12,6 @@ class PhotoCollectionFlowLayout: UICollectionViewFlowLayout {
     override init() {
         super.init()
         self.scrollDirection = .vertical
-//        self.sectionHeadersPinToVisibleBounds = true
     }
     
     required init?(coder: NSCoder) {
