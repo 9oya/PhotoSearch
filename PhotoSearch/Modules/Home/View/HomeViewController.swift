@@ -286,7 +286,7 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         if collectionView == detailPhotoCollectionView {
-            // Prevent more than one cell into a single screen.
+            // Prevent more than one cell from a single screen.
             return view.frame.height
         }
         return 1
