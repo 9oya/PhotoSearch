@@ -10,6 +10,10 @@ import Foundation
 
 protocol HomeInteractorOutput: class {
     
-    func reloadCollectionView()
+    func reloadOriginPhotoCollectionView()
+    
+    func reloadSearchResultPhotoCollectionView()
+    
+    func reloadHorizontalPhotoCollectionView()
 
 }

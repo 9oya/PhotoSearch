@@ -17,15 +17,28 @@ protocol HomeViewOutput {
 
     func viewIsReady()
     
-    func loadPhotos(keyword: String?, fetchStart: Int, fetchSize: Int)
+    func loadPhotosWith()
+    
+    func loadPhotosWith(keyword: String)
     
     func numberOfHeaderSections() -> Int
     
-    func numberOfPhotos() -> Int
+    func numberOfOriginPhotos() -> Int
     
-    func photoAt(indexPath: IndexPath) -> PhotoModel
+    func numberOfSearchResultPhotos() -> Int
     
-    func configurePhotoCollectionCell(cell: PhotoCollectionCell, indexPath: IndexPath)
+    func originPhotoAt(indexPath: IndexPath) -> PhotoModel
     
-    func getCellSize(width:CGFloat, indexPath: IndexPath) -> CGSize
+    func searchResultPhotoAt(indexPath: IndexPath) -> PhotoModel
+    
+    func configureOriginPhotoCollectionCell(cell: PhotoCollectionCell, indexPath: IndexPath)
+    
+    func configureSearchResultPhotoCollectionCell(cell: PhotoCollectionCell, indexPath: IndexPath)
+    
+    func getOriginPhotoCellSize(width:CGFloat, indexPath: IndexPath) -> CGSize
+    
+    func getSearchResultPhotoCellSize(width:CGFloat, indexPath: IndexPath) -> CGSize
+    
+    func resetSearchResultPhotos()
+    
 }

@@ -1,5 +1,5 @@
 //
-//  PhotoCollectionHeader.swift
+//  OriginPhotoCollectionHeader.swift
 //  PhotoSearch
 //
 //  Created by Eido Goya on 2020/10/24.
@@ -7,9 +7,9 @@
 
 import UIKit
 
-let photoCollectionHeaderId = "photoCollectionHeaderId"
+let originPhotoCollectionHeaderId = "originPhotoCollectionHeaderId"
 
-class PhotoCollectionHeader: UICollectionReusableView {
+class OriginPhotoCollectionHeader: UICollectionReusableView {
     
     var imageView: UIImageView!
     var staticBackgroundColorView: UIView!
@@ -41,7 +41,7 @@ class PhotoCollectionHeader: UICollectionReusableView {
     }
 }
 
-extension PhotoCollectionHeader {
+extension OriginPhotoCollectionHeader {
     private func setupLayout() {
         
         backgroundColor = .white

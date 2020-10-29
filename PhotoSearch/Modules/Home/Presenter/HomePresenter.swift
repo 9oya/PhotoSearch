@@ -19,32 +19,64 @@ class HomePresenter: HomeModuleInput, HomeViewOutput, HomeInteractorOutput {
         view.setupInitialState()
     }
     
-    func loadPhotos(keyword: String?, fetchStart: Int, fetchSize: Int) {
-        interactor.loadPhotos(keyword: keyword, fetchStart: fetchStart, fetchSize: fetchSize)
+    func loadPhotosWith() {
+        interactor.loadPhotosWith()
+    }
+    
+    func loadPhotosWith(keyword: String) {
+        interactor.loadPhotosWith(keyword: keyword)
     }
     
     func numberOfHeaderSections() -> Int {
         return interactor.numberOfHeaderSections()
     }
     
-    func numberOfPhotos() -> Int {
-        return interactor.numberOfPhotos()
+    func numberOfOriginPhotos() -> Int {
+        return interactor.numberOfOriginPhotos()
     }
     
-    func photoAt(indexPath: IndexPath) -> PhotoModel {
-        return interactor.photoAt(indexPath: indexPath)
+    func numberOfSearchResultPhotos() -> Int {
+        return interactor.numberOfSearchResultPhotos()
+    }
+    
+    func originPhotoAt(indexPath: IndexPath) -> PhotoModel {
+        return interactor.originPhotoAt(indexPath: indexPath)
+    }
+    
+    func searchResultPhotoAt(indexPath: IndexPath) -> PhotoModel {
+        return interactor.searchResultPhotoAt(indexPath: indexPath)
     }
 
-    func configurePhotoCollectionCell(cell: PhotoCollectionCell, indexPath: IndexPath) {
-        interactor.configurePhotoCollectionCell(cell: cell, indexPath: indexPath)
+    func configureOriginPhotoCollectionCell(cell: PhotoCollectionCell, indexPath: IndexPath) {
+        interactor.configureOriginPhotoCollectionCell(cell: cell, indexPath: indexPath)
     }
     
-    func getCellSize(width:CGFloat, indexPath: IndexPath) -> CGSize {
-        return interactor.getCellSize(width: width, indexPath: indexPath)
+    func configureSearchResultPhotoCollectionCell(cell: PhotoCollectionCell, indexPath: IndexPath) {
+        interactor.configureSearchResultPhotoCollectionCell(cell: cell, indexPath: indexPath)
+    }
+    
+    func getOriginPhotoCellSize(width:CGFloat, indexPath: IndexPath) -> CGSize {
+        return interactor.getOriginPhotoCellSize(width: width, indexPath: indexPath)
+    }
+    
+    func getSearchResultPhotoCellSize(width:CGFloat, indexPath: IndexPath) -> CGSize {
+        return interactor.getSearchResultPhotoCellSize(width: width, indexPath: indexPath)
+    }
+    
+    func resetSearchResultPhotos() {
+        interactor.resetSearchResultPhotos()
     }
     
     // MARK: HomeInteractorOutput
-    func reloadCollectionView() {
-        view.reloadPhotoCollectionView()
+    func reloadOriginPhotoCollectionView() {
+        view.reloadOriginPhotoCollectionView()
+    }
+    
+    func reloadSearchResultPhotoCollectionView() {
+        view.reloadSearchResultPhotoCollectionView()
+    }
+    
+    func reloadHorizontalPhotoCollectionView() {
+        view.reloadHorizontalPhotoCollectionView()
     }
 }
