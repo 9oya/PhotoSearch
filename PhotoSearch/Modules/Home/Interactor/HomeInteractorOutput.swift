@@ -14,6 +14,6 @@ protocol HomeInteractorOutput: class {
     
     func reloadSearchResultPhotoCollectionView()
     
-    func reloadHorizontalPhotoCollectionView()
+    func reloadDetailPhotoCollectionView()
 
 }

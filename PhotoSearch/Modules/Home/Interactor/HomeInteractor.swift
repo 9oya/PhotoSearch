@@ -14,6 +14,7 @@ class HomeInteractor: HomeInteractorInput {
     
     private var getOriginPhotos: (() -> [PhotoModel])?
     private var getSearchResultPhotos: (() -> [PhotoModel]?)?
+    private var getDetailPhotos: (() -> [PhotoModel])?
     private var getNextPageOfOriginPhotos: (() -> Int) = {
         return 1
     }
@@ -64,6 +65,7 @@ class HomeInteractor: HomeInteractorInput {
                         self.getOriginPhotos = {
                             return prevPhotos != nil ? prevPhotos! + newPhotos : newPhotos
                         }
+                        self.getDetailPhotos = self.getOriginPhotos
                         self.getNextPageOfOriginPhotos = {
                             return currPage + 1
                         }
@@ -104,6 +106,10 @@ class HomeInteractor: HomeInteractorInput {
                             }
                             return (prevPhotos != nil ? prevPhotos! + newPhotos! : newPhotos)!
                         }
+                        let allResultPhotos = self.getSearchResultPhotos!()!
+                        self.getDetailPhotos = {
+                            return allResultPhotos
+                        }
                         self.getNextPageOfSearchResultPhotos = {
                             return currPage + 1
                         }
@@ -124,8 +130,12 @@ class HomeInteractor: HomeInteractorInput {
         return getOriginPhotos!()[indexPath.item]
     }
     
-    func searchResultPhotoAt(indexPath: IndexPath) -> PhotoModel {
-        return getSearchResultPhotos!()![indexPath.item]
+    func searchResultPhotoAt(indexPath: IndexPath) -> PhotoModel? {
+        return getSearchResultPhotos?()![indexPath.item]
+    }
+    
+    func detailPhotoAt(indexPath: IndexPath) -> PhotoModel {
+        return getDetailPhotos!()[indexPath.item]
     }
     
     func numberOfHeaderSections() -> Int {
@@ -140,13 +150,22 @@ class HomeInteractor: HomeInteractorInput {
         return getSearchResultPhotos != nil ? (getSearchResultPhotos!() != nil ? getSearchResultPhotos!()!.count : 0) : 0
     }
     
+    func numberOfDetailPhotos() -> Int {
+        return getDetailPhotos != nil ? getDetailPhotos!().count : 0
+    }
+    
     func configureOriginPhotoCollectionCell(cell: PhotoCollectionCell, indexPath: IndexPath) {
         let photo = originPhotoAt(indexPath: indexPath)
         configurePhotoCollectionCell(cell: cell, photo: photo)
     }
     
     func configureSearchResultPhotoCollectionCell(cell: PhotoCollectionCell, indexPath: IndexPath) {
-        let photo = searchResultPhotoAt(indexPath: indexPath)
+        let photo = searchResultPhotoAt(indexPath: indexPath)!
+        configurePhotoCollectionCell(cell: cell, photo: photo)
+    }
+    
+    func configureDetailPhotoCollectionCell(cell: PhotoCollectionCell, indexPath: IndexPath) {
+        let photo = detailPhotoAt(indexPath: indexPath)
         configurePhotoCollectionCell(cell: cell, photo: photo)
     }
     
@@ -156,7 +175,12 @@ class HomeInteractor: HomeInteractorInput {
     }
     
     func getSearchResultPhotoCellSize(width:CGFloat, indexPath: IndexPath) -> CGSize {
-        let photo = searchResultPhotoAt(indexPath: indexPath)
+        let photo = searchResultPhotoAt(indexPath: indexPath)!
+        return getPhotoCellSize(photo: photo, width: width, indexPath: indexPath)
+    }
+    
+    func getDetailPhotoCellSize(width:CGFloat, indexPath: IndexPath) -> CGSize {
+        let photo = detailPhotoAt(indexPath: indexPath)
         return getPhotoCellSize(photo: photo, width: width, indexPath: indexPath)
     }
     

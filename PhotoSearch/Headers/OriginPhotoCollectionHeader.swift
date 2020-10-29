@@ -15,10 +15,6 @@ class OriginPhotoCollectionHeader: UICollectionReusableView {
     var staticBackgroundColorView: UIView!
     var dynamicBackgrounColorView: UIView!
     
-    var animator: UIViewPropertyAnimator!
-    
-    
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()

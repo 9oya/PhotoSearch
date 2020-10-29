@@ -14,10 +14,11 @@ class HomeViewController: UIViewController, HomeViewInput {
     var searchBar: UISearchBar!
     var originPhotoCollectionView: UICollectionView!
     var searchResultPhotoCollectionView: UICollectionView!
-    var horizontalPhotoCollectionView: UICollectionView!
+    var detailPhotoCollectionView: UICollectionView!
     var headerOuterBGBlindView: UIView!
     var originPhotoCollectionBlindView: UIView!
     var headerTitleLabel: UILabel!
+    var cancelButton: UIButton!
     var headerOuterBGBlindHeightConstraint: NSLayoutConstraint!
     
     let searchBarHeight: CGFloat = 74
@@ -26,6 +27,7 @@ class HomeViewController: UIViewController, HomeViewInput {
     var lastContentOffsetYOfOrigin: CGFloat = 0.0
     var lastContentOffsetYOfSearchResult: CGFloat = 0.0
     var isScrollToLoading: Bool = false
+    var isDarkContentBackground = true
     var searchKeyword: String?
     
     var setHeaderInnerBGBlindColor: ((UIColor, CGFloat) -> Void)! = nil
@@ -54,6 +56,14 @@ class HomeViewController: UIViewController, HomeViewInput {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: animated)
+    }
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        if isDarkContentBackground {
+            return .lightContent
+        } else {
+            return .default
+        }
     }
     
     // MARK: Actions
@@ -101,6 +111,29 @@ class HomeViewController: UIViewController, HomeViewInput {
         }
     }
     
+    func setStatusBarToWhite() {
+        isDarkContentBackground = true
+        UIView.animate(withDuration: 0.3) {
+            self.setNeedsStatusBarAppearanceUpdate()
+        }
+    }
+    
+    func setStatusBarToBlack() {
+        isDarkContentBackground = false
+        UIView.animate(withDuration: 0.3) {
+            self.setNeedsStatusBarAppearanceUpdate()
+        }
+    }
+    
+    @objc func cancelButtonTapped() {
+        detailPhotoCollectionView.isHidden = true
+        isDarkContentBackground = false
+        UIView.animate(withDuration: 0.3) {
+            self.setNeedsStatusBarAppearanceUpdate()
+        }
+        cancelButton.isHidden = true
+    }
+    
     // MARK: HomeViewInput
     func setupInitialState() {
         output.loadPhotosWith()
@@ -108,19 +141,21 @@ class HomeViewController: UIViewController, HomeViewInput {
     
     func reloadOriginPhotoCollectionView() {
         originPhotoCollectionView.reloadData()
+        detailPhotoCollectionView.reloadData()
         isScrollToLoading = false
     }
     
     func reloadSearchResultPhotoCollectionView() {
         searchResultPhotoCollectionView.reloadData()
+        detailPhotoCollectionView.reloadData()
         isScrollToLoading = false
         originPhotoCollectionView.isHidden = true
         searchResultPhotoCollectionView.isHidden = false
         view.endEditing(true)
     }
     
-    func reloadHorizontalPhotoCollectionView() {
-        horizontalPhotoCollectionView.reloadData()
+    func reloadDetailPhotoCollectionView() {
+        detailPhotoCollectionView.reloadData()
     }
 }
 
@@ -136,8 +171,10 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
         var numberOfItems = 0
         if collectionView == originPhotoCollectionView {
             numberOfItems = output.numberOfOriginPhotos()
-        } else {
+        } else if collectionView == searchResultPhotoCollectionView {
             numberOfItems = output.numberOfSearchResultPhotos()
+        } else {
+            numberOfItems = output.numberOfDetailPhotos()
         }
         
         return numberOfItems
@@ -162,8 +199,11 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: photoCollectionCellId, for: indexPath) as! PhotoCollectionCell
         if collectionView == originPhotoCollectionView {
             output.configureOriginPhotoCollectionCell(cell: cell, indexPath: indexPath)
-        } else {
+        } else if collectionView == searchResultPhotoCollectionView {
             output.configureSearchResultPhotoCollectionCell(cell: cell, indexPath: indexPath)
+        } else {
+            output.configureDetailPhotoCollectionCell(cell: cell, indexPath: indexPath)
+            cell.backgroundColor = .black
         }
         
         return cell
@@ -172,7 +212,15 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
 
     // MARK: UICollectionViewDelegate
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-
+        if collectionView == originPhotoCollectionView {
+            detailPhotoCollectionView.isHidden = false
+            cancelButton.isHidden = false
+            setStatusBarToWhite()
+        } else if collectionView == searchResultPhotoCollectionView {
+            
+        } else {
+            
+        }
     }
 
     // MARK: UICollectionViewDelegateFlowLayout
@@ -200,30 +248,39 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if collectionView == originPhotoCollectionView {
             return output.getOriginPhotoCellSize(width: view.frame.width, indexPath: indexPath)
-        } else {
+        } else if collectionView == searchResultPhotoCollectionView {
             return output.getSearchResultPhotoCellSize(width: view.frame.width, indexPath: indexPath)
+        } else {
+            return output.getDetailPhotoCellSize(width: view.frame.width, indexPath: indexPath)
         }
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 1;
+        if collectionView == detailPhotoCollectionView {
+            return 0
+        }
+        return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return 1;
+        if collectionView == detailPhotoCollectionView {
+            return view.frame.height
+        }
+        return 1
     }
     
     // MARK: UIScrollViewDelegate
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
         let contentOffsetY = scrollView.contentOffset.y
-        print("ContentOffSetY: \(contentOffsetY)")
-        print("Frame Height: \(view.frame.height)")
+//        print("ContentOffSetY: \(contentOffsetY)")
+//        print("Frame Height: \(view.frame.height)")
 //        print("Header Height: \(headerHeight!)")
 //        print("InitialYForSearchBar: \(initialYForSearchBar!)")
-        print("CollectionOffSetY: \(originPhotoCollectionView.contentOffset.y)")
+//        print("CollectionOffSetY: \(originPhotoCollectionView.contentOffset.y)")
         
-        if !searchResultPhotoCollectionView.isHidden {
+        // ========= Scroll to load more =========
+        if scrollView == searchResultPhotoCollectionView {
             if (scrollView.frame.size.height + contentOffsetY) > (scrollView.contentSize.height - 500) {
                 if lastContentOffsetYOfSearchResult > contentOffsetY {
                     // Case scrolled up
@@ -238,7 +295,7 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
                     output.loadPhotosWith(keyword: searchKeyword!)
                 }
             }
-        } else {
+        } else if scrollView == originPhotoCollectionView {
             if (scrollView.frame.size.height + contentOffsetY) > (scrollView.contentSize.height - 500) {
                 if lastContentOffsetYOfOrigin > contentOffsetY {
                     // Case scrolled up
@@ -251,8 +308,12 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
                 isScrollToLoading = true
                 output.loadPhotosWith()
             }
+        } else {
+            
+            return
         }
         
+        // ========= Chaingin Search bar layout =========
         if !searchBar.isTranslucent {
             // Stop changing layout when searchBar is activating...
             return
@@ -271,9 +332,11 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
                     hideHeaderInnerBGBlind()
                     headerOuterBGBlindView.isHidden = false
                     headerOuterBGBlindHeightConstraint.constant = searchBarHeight
+                    setStatusBarToBlack()
                 } else {
                     showHeaderInnerBGBlind()
                     headerOuterBGBlindView.isHidden = true
+                    setStatusBarToWhite()
                 }
                 return
             }
@@ -289,9 +352,11 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
                     hideHeaderInnerBGBlind()
                     headerOuterBGBlindView.isHidden = false
                     headerOuterBGBlindHeightConstraint.constant = searchBarHeight + 20
+                    setStatusBarToBlack()
                 } else {
                     showHeaderInnerBGBlind()
                     headerOuterBGBlindView.isHidden = true
+                    setStatusBarToWhite()
                 }
                 return
             }
@@ -307,9 +372,11 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
                     hideHeaderInnerBGBlind()
                     headerOuterBGBlindView.isHidden = false
                     headerOuterBGBlindHeightConstraint.constant = searchBarHeight + searchBar.frame.origin.y
+                    setStatusBarToBlack()
                 } else {
                     showHeaderInnerBGBlind()
                     headerOuterBGBlindView.isHidden = true
+                    setStatusBarToWhite()
                 }
                 return
             }
@@ -324,6 +391,7 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
         
         // Change searchBar's Y offset
         searchBar.frame = CGRect(x: 0, y: initialYForSearchBar - contentOffsetY, width: view.frame.width, height: searchBarHeight)
+        
     }
 }
 
@@ -358,6 +426,7 @@ extension HomeViewController: UISearchResultsUpdating, UISearchBarDelegate {
         searchBar.isTranslucent = false
         toggleSearchBarLayout()
         searchBar.showsCancelButton = true
+        setStatusBarToBlack()
         
     }
     
@@ -367,8 +436,12 @@ extension HomeViewController: UISearchResultsUpdating, UISearchBarDelegate {
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         
         originPhotoCollectionBlindView.isHidden = true
-        searchResultPhotoCollectionView.isHidden = true
-        searchResultPhotoCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
+        
+        if output.searchResultPhotoAt(indexPath: IndexPath(item: 0, section: 0)) != nil {
+            searchResultPhotoCollectionView.isHidden = true
+            searchResultPhotoCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
+        }
+        
         originPhotoCollectionView.isHidden = false
         searchBar.text = ""
         
@@ -385,17 +458,20 @@ extension HomeViewController: UISearchResultsUpdating, UISearchBarDelegate {
                 // SE
                 if self.originPhotoCollectionView.contentOffset.y <= 160 {
                     self.originPhotoCollectionView.contentOffset.y = self.lastContentOffsetYOfOrigin
+                    self.setStatusBarToWhite()
                 }
             } else if self.view.frame.height <= 667 {
                 // 6, 7, 8
                 if self.originPhotoCollectionView.contentOffset.y <= 184 {
                     self.originPhotoCollectionView.contentOffset.y = self.lastContentOffsetYOfOrigin
+                    self.setStatusBarToWhite()
                 }
             } else if self.view.frame.height >= 812 {
                 // 11, 11Pro, 11ProMax
                 if self.originPhotoCollectionView.contentOffset.y <= 223 {
                     self.originPhotoCollectionView.contentOffset.y = self.lastContentOffsetYOfOrigin
                     self.headerOuterBGBlindView.isHidden = true
+                    self.setStatusBarToWhite()
                 }
             }
         }
@@ -416,7 +492,6 @@ extension HomeViewController: UISearchResultsUpdating, UISearchBarDelegate {
 }
 
 extension HomeViewController {
-    
     private func getPhotoCollectionView() -> UICollectionView {
         let layout = PhotoCollectionFlowLayout()
         let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
@@ -429,20 +504,39 @@ extension HomeViewController {
     
     // MARK: Load views
     private func setupLayout() {
-        
+        // MARK: Setup view
         view.backgroundColor = .white
-        
         navigationController?.navigationBar.tintColor = .clear
         
-        headerHeight = view.frame.height / 2.4
-        initialYForSearchBar = headerHeight / 2
-        
+        // MARK: Setup sub-view properties
         originPhotoCollectionView = getPhotoCollectionView()
         originPhotoCollectionView.register(OriginPhotoCollectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: originPhotoCollectionHeaderId)
         
         searchResultPhotoCollectionView = getPhotoCollectionView()
         searchResultPhotoCollectionView.register(SearchResultPhotoCollectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: searchResultPhotoCollectionHeaderId)
         searchResultPhotoCollectionView.isHidden = true
+        
+        detailPhotoCollectionView = {
+            let layout = PhotoCollectionFlowLayout()
+            layout.scrollDirection = .horizontal
+            let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
+            collectionView.contentInsetAdjustmentBehavior = .never
+            collectionView.backgroundColor = .black
+            collectionView.register(PhotoCollectionCell.self, forCellWithReuseIdentifier: photoCollectionCellId)
+            collectionView.isPagingEnabled = true
+            collectionView.isHidden = true
+            collectionView.translatesAutoresizingMaskIntoConstraints = false
+            return collectionView
+        }()
+        
+        cancelButton = {
+            let button = UIButton()
+            button.setBackgroundImage(UIImage(named: "close_white"), for: .normal)
+            button.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
+            button.isHidden = true
+            button.translatesAutoresizingMaskIntoConstraints = false
+            return button
+        }()
         
         headerTitleLabel = {
             let lable = UILabel()
@@ -464,6 +558,8 @@ extension HomeViewController {
             view.translatesAutoresizingMaskIntoConstraints = false
             return view
         }()
+        headerHeight = view.frame.height / 2.4
+        initialYForSearchBar = headerHeight / 2
         searchBar = {
             let searchBar = UISearchBar(frame: CGRect(x: 0, y: initialYForSearchBar, width: view.frame.width, height: searchBarHeight))
             searchBar.isTranslucent = true
@@ -486,19 +582,26 @@ extension HomeViewController {
         let cancelButtonAttributes: [NSAttributedString.Key: Any] = [NSAttributedString.Key.foregroundColor: UIColor.darkGray]
         UIBarButtonItem.appearance(whenContainedInInstancesOf: [UISearchBar.self]).setTitleTextAttributes(cancelButtonAttributes, for: .normal)
         
+        // MARK: Setup UI Hierarchy
         view.addSubview(originPhotoCollectionView)
         view.addSubview(originPhotoCollectionBlindView)
         view.addSubview(searchResultPhotoCollectionView)
         view.addSubview(headerOuterBGBlindView)
         view.addSubview(headerTitleLabel)
         view.addSubview(searchBar)
+        view.addSubview(detailPhotoCollectionView)
+        view.addSubview(cancelButton)
         
+        // MARK: DI
         searchBar.delegate = self
         originPhotoCollectionView.delegate = self
         originPhotoCollectionView.dataSource = self
         searchResultPhotoCollectionView.delegate = self
         searchResultPhotoCollectionView.dataSource = self
+        detailPhotoCollectionView.delegate = self
+        detailPhotoCollectionView.dataSource = self
 
+        // MARK: Setup constraints
         originPhotoCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -(view.frame.height * 0.06)).isActive = true
         originPhotoCollectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0).isActive = true
         originPhotoCollectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0).isActive = true
@@ -520,6 +623,14 @@ extension HomeViewController {
         originPhotoCollectionBlindView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0).isActive = true
         originPhotoCollectionBlindView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0).isActive = true
         originPhotoCollectionBlindView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: view.frame.height * 0.06).isActive = true
+        
+        detailPhotoCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -(view.frame.height * 0.06)).isActive = true
+        detailPhotoCollectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0).isActive = true
+        detailPhotoCollectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0).isActive = true
+        detailPhotoCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: view.frame.height * 0.06).isActive = true
+        
+        cancelButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 5).isActive = true
+        cancelButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 15).isActive = true
         
         headerTitleLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor, constant: 0).isActive = true
         headerTitleLabel.bottomAnchor.constraint(equalTo: searchBar.topAnchor, constant: 5).isActive = true

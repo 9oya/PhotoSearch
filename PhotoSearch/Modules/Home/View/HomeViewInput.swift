@@ -19,6 +19,6 @@ protocol HomeViewInput: class {
     
     func reloadSearchResultPhotoCollectionView()
     
-    func reloadHorizontalPhotoCollectionView()
+    func reloadDetailPhotoCollectionView()
     
 }

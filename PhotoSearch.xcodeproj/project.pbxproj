@@ -56,6 +56,7 @@
 		F5EBDC69254796170025B5BE /* APIConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5EBDC68254796170025B5BE /* APIConstants.swift */; };
 		F5EF30AD254A4EEB00C8E662 /* SearchPhotoModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5EF30AC254A4EEB00C8E662 /* SearchPhotoModel.swift */; };
 		F5EF30B0254A527D00C8E662 /* SearchResultPhotoCollectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5EF30AF254A527D00C8E662 /* SearchResultPhotoCollectionHeader.swift */; };
+		F5EF30B5254A6BAD00C8E662 /* PanDirectionGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5EF30B4254A6BAD00C8E662 /* PanDirectionGestureRecognizer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -106,6 +107,7 @@
 		F5EBDC68254796170025B5BE /* APIConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIConstants.swift; sourceTree = "<group>"; };
 		F5EF30AC254A4EEB00C8E662 /* SearchPhotoModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchPhotoModel.swift; sourceTree = "<group>"; };
 		F5EF30AF254A527D00C8E662 /* SearchResultPhotoCollectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultPhotoCollectionHeader.swift; sourceTree = "<group>"; };
+		F5EF30B4254A6BAD00C8E662 /* PanDirectionGestureRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanDirectionGestureRecognizer.swift; sourceTree = "<group>"; };
 		F9DD715EBFC4AFC6E7248063 /* DetailModuleInput.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DetailModuleInput.swift; sourceTree = "<group>"; };
 		FC06F2A5BB5648BE0D8F638E /* SearchRouterInput.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SearchRouterInput.swift; sourceTree = "<group>"; };
 		FDB0DCF3FA8064C7E36E46F5 /* HomeViewInput.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HomeViewInput.swift; sourceTree = "<group>"; };
@@ -390,6 +392,7 @@
 			children = (
 				F5A426B92544F5C400E8AEC4 /* APIRouter.swift */,
 				F5EBDC68254796170025B5BE /* APIConstants.swift */,
+				F5EF30B4254A6BAD00C8E662 /* PanDirectionGestureRecognizer.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -502,6 +505,7 @@
 				720AD5CEB087B2DB73F41437 /* HomeInteractorOutput.swift in Sources */,
 				F5EBDC6225478F350025B5BE /* SponsorshipModel.swift in Sources */,
 				90D14C6906F4979BF91412D1 /* HomeInteractor.swift in Sources */,
+				F5EF30B5254A6BAD00C8E662 /* PanDirectionGestureRecognizer.swift in Sources */,
 				EA2B8F5F9124DE9FD711DF7C /* HomeRouterInput.swift in Sources */,
 				D853DCB7558954C0A556A9DC /* HomeRouter.swift in Sources */,
 				82BBAB7D435BC2A421ACEAD5 /* HomeConfigurator.swift in Sources */,

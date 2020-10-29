@@ -25,13 +25,9 @@ class PhotoCollectionFlowLayout: UICollectionViewFlowLayout {
         layoutAttributes?.forEach({ (attributes) in
             if attributes.representedElementKind == UICollectionView.elementKindSectionHeader {
                 guard let collectionView = collectionView else { return }
-                
-//                print(collectionView.contentOffset.y)
-                
                 if collectionView.contentOffset.y > 0 {
                     return
                 }
-                
                 
                 // header
                 attributes.frame = CGRect(x: 0,

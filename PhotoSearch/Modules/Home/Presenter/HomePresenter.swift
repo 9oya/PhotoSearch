@@ -39,12 +39,20 @@ class HomePresenter: HomeModuleInput, HomeViewOutput, HomeInteractorOutput {
         return interactor.numberOfSearchResultPhotos()
     }
     
+    func numberOfDetailPhotos() -> Int {
+        return interactor.numberOfDetailPhotos()
+    }
+    
     func originPhotoAt(indexPath: IndexPath) -> PhotoModel {
         return interactor.originPhotoAt(indexPath: indexPath)
     }
     
-    func searchResultPhotoAt(indexPath: IndexPath) -> PhotoModel {
+    func searchResultPhotoAt(indexPath: IndexPath) -> PhotoModel? {
         return interactor.searchResultPhotoAt(indexPath: indexPath)
+    }
+    
+    func detailPhotoAt(indexPath: IndexPath) -> PhotoModel {
+        return interactor.detailPhotoAt(indexPath: indexPath)
     }
 
     func configureOriginPhotoCollectionCell(cell: PhotoCollectionCell, indexPath: IndexPath) {
@@ -55,12 +63,20 @@ class HomePresenter: HomeModuleInput, HomeViewOutput, HomeInteractorOutput {
         interactor.configureSearchResultPhotoCollectionCell(cell: cell, indexPath: indexPath)
     }
     
+    func configureDetailPhotoCollectionCell(cell: PhotoCollectionCell, indexPath: IndexPath) {
+        interactor.configureDetailPhotoCollectionCell(cell: cell, indexPath: indexPath)
+    }
+    
     func getOriginPhotoCellSize(width:CGFloat, indexPath: IndexPath) -> CGSize {
         return interactor.getOriginPhotoCellSize(width: width, indexPath: indexPath)
     }
     
     func getSearchResultPhotoCellSize(width:CGFloat, indexPath: IndexPath) -> CGSize {
         return interactor.getSearchResultPhotoCellSize(width: width, indexPath: indexPath)
+    }
+    
+    func getDetailPhotoCellSize(width: CGFloat, indexPath: IndexPath) -> CGSize {
+        return interactor.getDetailPhotoCellSize(width: width, indexPath: indexPath)
     }
     
     func resetSearchResultPhotos() {
@@ -76,7 +92,7 @@ class HomePresenter: HomeModuleInput, HomeViewOutput, HomeInteractorOutput {
         view.reloadSearchResultPhotoCollectionView()
     }
     
-    func reloadHorizontalPhotoCollectionView() {
-        view.reloadHorizontalPhotoCollectionView()
+    func reloadDetailPhotoCollectionView() {
+        view.reloadDetailPhotoCollectionView()
     }
 }

@@ -20,17 +20,25 @@ protocol HomeInteractorInput {
     
     func numberOfSearchResultPhotos() -> Int
     
+    func numberOfDetailPhotos() -> Int
+    
     func originPhotoAt(indexPath: IndexPath) -> PhotoModel
     
-    func searchResultPhotoAt(indexPath: IndexPath) -> PhotoModel
+    func searchResultPhotoAt(indexPath: IndexPath) -> PhotoModel?
+    
+    func detailPhotoAt(indexPath: IndexPath) -> PhotoModel
     
     func configureOriginPhotoCollectionCell(cell: PhotoCollectionCell, indexPath: IndexPath)
     
     func configureSearchResultPhotoCollectionCell(cell: PhotoCollectionCell, indexPath: IndexPath)
     
+    func configureDetailPhotoCollectionCell(cell: PhotoCollectionCell, indexPath: IndexPath)
+    
     func getOriginPhotoCellSize(width:CGFloat, indexPath: IndexPath) -> CGSize
     
     func getSearchResultPhotoCellSize(width:CGFloat, indexPath: IndexPath) -> CGSize
+    
+    func getDetailPhotoCellSize(width:CGFloat, indexPath: IndexPath) -> CGSize
     
     func resetSearchResultPhotos()
     
