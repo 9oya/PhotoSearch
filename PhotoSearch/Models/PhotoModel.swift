@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct PhotoModel: Codable {
+class PhotoModel: Codable {
     let id: String
     let created_at: String
     let updated_at: String?
@@ -24,6 +24,6 @@ struct PhotoModel: Codable {
     let likes: Int
     let liked_by_user: Bool
     let current_user_collections: [String]?
-//    let sponsorship: SponsorshipModel?
-//    let user: UserModel?
+    
+    var photo: Data?
 }

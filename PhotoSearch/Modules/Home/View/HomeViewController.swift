@@ -27,9 +27,9 @@ class HomeViewController: UIViewController, HomeViewInput {
     var lastContentOffsetYOfOrigin: CGFloat = 0.0
     var lastContentOffsetYOfSearchResult: CGFloat = 0.0
     var isScrollToLoading: Bool = false
-    var isDarkContentBackground = true
-    var searchKeyword: String?
+    var isDarkContentBackground: Bool = true
     var isCurrDetailPhotoFromOrigin: Bool = true
+    var searchKeyword: String?
     
     var setHeaderInnerBGBlindColor: ((UIColor, CGFloat) -> Void)! = nil
     var hideHeaderInnerBGBlind: (() -> (Void))! = nil
@@ -127,7 +127,7 @@ class HomeViewController: UIViewController, HomeViewInput {
     }
     
     func hideDetailPhotoCollection() {
-        UIView.transition(with: detailPhotoCollectionView, duration: 0.7, options: .transitionCrossDissolve) {
+        UIView.transition(with: detailPhotoCollectionView, duration: 0.5, options: .transitionCrossDissolve) {
             self.detailPhotoCollectionView.isHidden = true
         }
     }
@@ -139,18 +139,9 @@ class HomeViewController: UIViewController, HomeViewInput {
     }
     
     @objc func cancelButtonTapped() {
-        
-//        let currIndexPath = IndexPath(item: currItemOfDetailPhoto, section: 0)
-//        if isCurrDetailPhotoFromOrigin {
-//            originPhotoCollectionView.scrollToItem(at: currIndexPath, at: .centeredVertically, animated: false)
-//        } else {
-//            searchResultPhotoCollectionView.scrollToItem(at: currIndexPath, at: .centeredVertically, animated: false)
-//        }
-        
         hideDetailPhotoCollection()
         setStatusBarToBlack()
         cancelButton.isHidden = true
-        
     }
     
     // MARK: HomeViewInput
@@ -232,7 +223,7 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
     // MARK: UICollectionViewDelegate
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == originPhotoCollectionView {
-            output.swapDeatilPhotosIntoOriginPhotos()
+            output.swapAndReloadDeatilPhotos()
             detailPhotoCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: false)
             originPhotoCollectionView.scrollToItem(at: indexPath, at: .centeredVertically, animated: false)
             showDetailPhotoCollection()
@@ -287,6 +278,7 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         if collectionView == detailPhotoCollectionView {
+            // Below line make center the cell during paging.
             return 0
         }
         return 1
@@ -294,6 +286,7 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         if collectionView == detailPhotoCollectionView {
+            // Prevent more than one cell into a single screen.
             return view.frame.height
         }
         return 1
@@ -325,118 +318,112 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
         
         let contentOffsetY = scrollView.contentOffset.y
         
-        // ========= Scroll to load more =========
-        if scrollView == searchResultPhotoCollectionView {
-            if (scrollView.frame.size.height + contentOffsetY) > (scrollView.contentSize.height - 500) {
-                if lastContentOffsetYOfSearchResult > contentOffsetY {
-                    // Case scrolled up
-                    return
-                }
-                lastContentOffsetYOfSearchResult = contentOffsetY
-                if isScrollToLoading {
-                    return
-                }
-                isScrollToLoading = true
-                if searchKeyword != nil {
-                    output.loadPhotosWith(keyword: searchKeyword!)
-                }
-            }
-        } else if scrollView == originPhotoCollectionView {
-            if (scrollView.frame.size.height + contentOffsetY) > (scrollView.contentSize.height - 500) {
+        // Scroll to load more
+        if scrollView == originPhotoCollectionView {
+            if (scrollView.frame.size.height + contentOffsetY) > (scrollView.contentSize.height - 600) {
                 if lastContentOffsetYOfOrigin > contentOffsetY {
                     // Case scrolled up
-                    return
+                } else {
+                    lastContentOffsetYOfOrigin = contentOffsetY
+                    if isScrollToLoading {
+                        return
+                    }
+                    isScrollToLoading = true
+                    output.loadPhotosWith()
                 }
-                lastContentOffsetYOfOrigin = contentOffsetY
-                if isScrollToLoading {
-                    return
-                }
-                isScrollToLoading = true
-                output.loadPhotosWith()
             }
-        } else {
+        } else if scrollView == searchResultPhotoCollectionView {
+            if (scrollView.frame.size.height + contentOffsetY) > (scrollView.contentSize.height - 600) {
+                if lastContentOffsetYOfSearchResult > contentOffsetY {
+                    // Case scrolled up
+                } else {
+                    lastContentOffsetYOfSearchResult = contentOffsetY
+                    if isScrollToLoading {
+                        return
+                    }
+                    isScrollToLoading = true
+                    if searchKeyword != nil {
+                        output.loadPhotosWith(keyword: searchKeyword!)
+                    }
+                }
+            }
+        }
+        
+        // Prevent the layout changing while the detailPhotoCollectionView scrolling and searchBar is active.
+        if detailPhotoCollectionView.isHidden && searchBar.isTranslucent {
+            // Start changing layout from hear
+            if view.frame.height <= 568 {
+                // SE
+                if contentOffsetY > initialYForSearchBar {
+                    searchBar.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: searchBarHeight)
+                    headerOuterBGBlindHeightConstraint.constant = headerHeight - contentOffsetY
+                    hideHeaderTitleLabel()
+
+                    // Swap header background blind views
+                    if contentOffsetY > 160 {
+                        hideHeaderInnerBGBlind()
+                        headerOuterBGBlindView.isHidden = false
+                        headerOuterBGBlindHeightConstraint.constant = searchBarHeight
+                        setStatusBarToBlack()
+                    } else {
+                        showHeaderInnerBGBlind()
+                        headerOuterBGBlindView.isHidden = true
+                        setStatusBarToWhite()
+                    }
+                    return
+                }
+            } else if view.frame.height <= 736 {
+                // 6, 7, 8, plus
+                if contentOffsetY > initialYForSearchBar {
+                    searchBar.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: searchBarHeight)
+                    headerOuterBGBlindHeightConstraint.constant = headerHeight - contentOffsetY
+                    hideHeaderTitleLabel()
+
+                    // Swap header background blind views
+                    if contentOffsetY > 184 {
+                        hideHeaderInnerBGBlind()
+                        headerOuterBGBlindView.isHidden = false
+                        headerOuterBGBlindHeightConstraint.constant = searchBarHeight + 20
+                        setStatusBarToBlack()
+                    } else {
+                        showHeaderInnerBGBlind()
+                        headerOuterBGBlindView.isHidden = true
+                        setStatusBarToWhite()
+                    }
+                    return
+                }
+            } else if view.frame.height >= 812 {
+                // 11, 11Pro, 11ProMax
+                if contentOffsetY >= 134 {
+                    searchBar.frame = CGRect(x: 0, y: (view.frame.height * 0.15) - 80, width: view.frame.width, height: searchBarHeight)
+                    headerOuterBGBlindHeightConstraint.constant = headerHeight - contentOffsetY
+                    hideHeaderTitleLabel()
+                    
+                    // Swap header background blind views
+                    if contentOffsetY > 223 {
+                        hideHeaderInnerBGBlind()
+                        headerOuterBGBlindView.isHidden = false
+                        headerOuterBGBlindHeightConstraint.constant = searchBarHeight + searchBar.frame.origin.y
+                        setStatusBarToBlack()
+                    } else {
+                        showHeaderInnerBGBlind()
+                        headerOuterBGBlindView.isHidden = true
+                        setStatusBarToWhite()
+                    }
+                    return
+                }
+            }
             
-            return
+            // Change header background view's transparency
+            let alphaComp = ((contentOffsetY * 0.01) - 0.3) < 0.9 ? ((contentOffsetY * 0.01) - 0.3) : 0.9
+            setHeaderInnerBGBlindColor(UIColor.white, alphaComp)
+            headerOuterBGBlindView.backgroundColor = UIColor.white.withAlphaComponent(0.99)
+            headerOuterBGBlindHeightConstraint.constant = headerHeight - contentOffsetY
+            showHeaderTitleLabel()
+            
+            // Change searchBar's Y offset
+            searchBar.frame = CGRect(x: 0, y: initialYForSearchBar - contentOffsetY, width: view.frame.width, height: searchBarHeight)
         }
-        
-        // ========= Changing Search bar and header view layout =========
-        if !searchBar.isTranslucent {
-            // Stop changing layout when searchBar is activating...
-            return
-        }
-        
-        // Start changing layout
-        if view.frame.height <= 568 {
-            // SE
-            if contentOffsetY > initialYForSearchBar {
-                searchBar.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: searchBarHeight)
-                headerOuterBGBlindHeightConstraint.constant = headerHeight - contentOffsetY
-                hideHeaderTitleLabel()
-
-                // Swap header background blind views
-                if contentOffsetY > 160 {
-                    hideHeaderInnerBGBlind()
-                    headerOuterBGBlindView.isHidden = false
-                    headerOuterBGBlindHeightConstraint.constant = searchBarHeight
-                    setStatusBarToBlack()
-                } else {
-                    showHeaderInnerBGBlind()
-                    headerOuterBGBlindView.isHidden = true
-                    setStatusBarToWhite()
-                }
-                return
-            }
-        } else if view.frame.height <= 736 {
-            // 6, 7, 8, plus
-            if contentOffsetY > initialYForSearchBar {
-                searchBar.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: searchBarHeight)
-                headerOuterBGBlindHeightConstraint.constant = headerHeight - contentOffsetY
-                hideHeaderTitleLabel()
-
-                // Swap header background blind views
-                if contentOffsetY > 184 {
-                    hideHeaderInnerBGBlind()
-                    headerOuterBGBlindView.isHidden = false
-                    headerOuterBGBlindHeightConstraint.constant = searchBarHeight + 20
-                    setStatusBarToBlack()
-                } else {
-                    showHeaderInnerBGBlind()
-                    headerOuterBGBlindView.isHidden = true
-                    setStatusBarToWhite()
-                }
-                return
-            }
-        } else if view.frame.height >= 812 {
-            // 11, 11Pro, 11ProMax
-            if contentOffsetY >= 134 {
-                searchBar.frame = CGRect(x: 0, y: (view.frame.height * 0.15) - 80, width: view.frame.width, height: searchBarHeight)
-                headerOuterBGBlindHeightConstraint.constant = headerHeight - contentOffsetY
-                hideHeaderTitleLabel()
-                
-                // Swap header background blind views
-                if contentOffsetY > 223 {
-                    hideHeaderInnerBGBlind()
-                    headerOuterBGBlindView.isHidden = false
-                    headerOuterBGBlindHeightConstraint.constant = searchBarHeight + searchBar.frame.origin.y
-                    setStatusBarToBlack()
-                } else {
-                    showHeaderInnerBGBlind()
-                    headerOuterBGBlindView.isHidden = true
-                    setStatusBarToWhite()
-                }
-                return
-            }
-        }
-        
-        // Change header background view state
-        let alphaComp = ((contentOffsetY * 0.01) - 0.3) < 0.9 ? ((contentOffsetY * 0.01) - 0.3) : 0.9
-        setHeaderInnerBGBlindColor(UIColor.white, alphaComp)
-        headerOuterBGBlindView.backgroundColor = UIColor.white.withAlphaComponent(0.99)
-        headerOuterBGBlindHeightConstraint.constant = headerHeight - contentOffsetY
-        showHeaderTitleLabel()
-        
-        // Change searchBar's Y offset
-        searchBar.frame = CGRect(x: 0, y: initialYForSearchBar - contentOffsetY, width: view.frame.width, height: searchBarHeight)
         
     }
 }
@@ -471,21 +458,16 @@ extension HomeViewController: UISearchBarDelegate {
         
     }
     
-    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-    }
-    
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         
         originPhotoCollectionBlindView.isHidden = true
-        
-        if output.searchResultPhotoAt(indexPath: IndexPath(item: 0, section: 0)) != nil {
+        if output.numberOfSearchResultPhotos() > 0 {
             searchResultPhotoCollectionView.isHidden = true
             searchResultPhotoCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
         }
         
         originPhotoCollectionView.isHidden = false
         searchBar.text = ""
-        
         searchBar.isTranslucent = true
         toggleSearchBarLayout()
         searchBar.endEditing(true)
@@ -544,7 +526,7 @@ extension HomeViewController {
     // MARK: Load views
     private func setupLayout() {
         // MARK: Setup view
-        view.backgroundColor = .white
+        view.backgroundColor = .black
         navigationController?.navigationBar.tintColor = .clear
         
         // MARK: Setup sub-view properties

@@ -42,6 +42,6 @@ protocol HomeInteractorInput {
     
     func resetSearchResultPhotos()
     
-    func swapDeatilPhotosIntoOriginPhotos()
+    func swapAndReloadDeatilPhotos()
     
 }

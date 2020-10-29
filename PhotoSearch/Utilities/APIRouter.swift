@@ -75,6 +75,7 @@ enum APIRouter {
         var headers = [(String, String)]()
         switch self {
         case .getRandomPhoto, .getPhotos, .searchPhotos:
+            headers = [(String, String)]()
             return headers
         }
     }
@@ -98,7 +99,7 @@ enum APIRouter {
         urlRequest.httpMethod = method
         
         // Common Headers
-        urlRequest.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Accept-Encoding")
+        urlRequest.addValue(ContentType.json.rawValue, forHTTPHeaderField: HTTPHeaderField.acceptEncoding.rawValue)
         
         // Additional Headers
         let headers = getAdditionalHttpHeaders()

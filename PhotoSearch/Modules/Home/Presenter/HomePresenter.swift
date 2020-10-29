@@ -83,8 +83,8 @@ class HomePresenter: HomeModuleInput, HomeViewOutput, HomeInteractorOutput {
         interactor.resetSearchResultPhotos()
     }
     
-    func swapDeatilPhotosIntoOriginPhotos() {
-        interactor.swapDeatilPhotosIntoOriginPhotos()
+    func swapAndReloadDeatilPhotos() {
+        interactor.swapAndReloadDeatilPhotos()
     }
     
     // MARK: HomeInteractorOutput
